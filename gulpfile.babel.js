@@ -6,6 +6,9 @@ import postcss from 'gulp-postcss'
 // HTML
 import htmlmin from 'gulp-htmlmin'
 
+// Pug 
+import GulpPug from 'gulp-pug'
+
 //  JS
 import babel from 'gulp-babel'
 import concat from 'gulp-concat'
@@ -18,8 +21,10 @@ const cssPlugins = [
   autoprefixer()
 ]
 const babelRoute = './src/js/*.js'
-const htmlRoute = './src/*.html'
 const cssRoute = './src/css/*.css'
+const pugRoute = './src/views/**/*.pug'
+
+const production = process.env.PRODUCTION;
 
 gulp.task('css', () => {
   return gulp
@@ -30,15 +35,15 @@ gulp.task('css', () => {
 
 })
 
-gulp.task('html', () => {
-  return gulp
-    .src(htmlRoute)
-    .pipe(htmlmin({
-      collapseWhitespace: true,
-      removeComments: true
-    }))
-    .pipe(gulp.dest('./public'))
-})
+// gulp.task('html', () => {
+//   return gulp
+//     .src(htmlRoute)
+//     .pipe(htmlmin({
+//       collapseWhitespace: true,
+//       removeComments: true
+//     }))
+//     .pipe(gulp.dest('./public'))
+// })
 
 gulp.task('babel', () => {
   return gulp
@@ -49,15 +54,24 @@ gulp.task('babel', () => {
     .pipe(gulp.dest('./public/js'))
 })
 
+gulp.task('pug', () => {
+  return gulp
+    .src(pugRoute)
+    .pipe(GulpPug({
+      pretty: production ? false : true
+    }))
+    .pipe(gulp.dest('./public/views'))
+})
+
 gulp.task('default', () => {
   gulp.watch([
-    htmlRoute,
     babelRoute,
-    cssRoute
+    cssRoute,
+    './src/views/**/*.pug'
   ],
     gulp.series([
-      'html',
       'babel',
-      'css'
+      'css',
+      'pug'
     ]))
 })
